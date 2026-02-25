@@ -1,0 +1,137 @@
+-- [[ PHU QUY PROJECT • GENESIS V1 - OFFICIAL ]] --
+local lp = game.Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+local sg = Instance.new("ScreenGui", game.CoreGui)
+sg.Name = "PhuQuyProject_Genesis"
+
+local main = Instance.new("Frame", sg)
+main.Size = UDim2.new(0, 200, 0, 320)
+main.Position = UDim2.new(0.5, -100, 0.4, -160)
+main.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
+main.Visible = false
+Instance.new("UICorner", main).CornerRadius = UDim.new(0, 10)
+local stroke = Instance.new("UIStroke", main)
+stroke.Color = Color3.fromRGB(0, 255, 150)
+stroke.Thickness = 1.5
+
+-- Header (Thanh kéo menu)
+local header = Instance.new("Frame", main)
+header.Size = UDim2.new(1, 0, 0, 38)
+header.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Instance.new("UICorner", header)
+
+local title = Instance.new("TextLabel", header)
+title.Size = UDim2.new(1, 0, 1, 0)
+title.Text = "PHU QUY PROJECT V1"
+title.TextColor3 = Color3.fromRGB(0, 255, 150)
+title.Font = Enum.Font.GothamBold
+title.TextSize = 13
+title.BackgroundTransparency = 1
+
+-- Nút tròn PQ
+local pqBtn = Instance.new("TextButton", sg)
+pqBtn.Size = UDim2.new(0, 50, 0, 50)
+pqBtn.Position = UDim2.new(0.05, 0, 0.2, 0)
+pqBtn.BackgroundColor3 = Color3.fromRGB(0, 255, 150)
+pqBtn.Text = "PQ"
+pqBtn.Font = Enum.Font.GothamBold
+pqBtn.Draggable = true
+Instance.new("UICorner", pqBtn).CornerRadius = UDim.new(1, 0)
+
+-- Khung cuộn tính năng
+local scroll = Instance.new("ScrollingFrame", main)
+scroll.Size = UDim2.new(1, -10, 1, -48)
+scroll.Position = UDim2.new(0, 5, 0, 43)
+scroll.BackgroundTransparency = 1
+scroll.CanvasSize = UDim2.new(0, 0, 0, 680)
+scroll.ScrollBarThickness = 1
+Instance.new("UIListLayout", scroll).Padding = UDim.new(0, 6)
+scroll.UIListLayout.HorizontalAlignment = "Center"
+
+-- HÀM DỊCH CHUYỂN
+function Teleport(target)
+    pcall(function()
+        local root = lp.Character.HumanoidRootPart
+        local found = false
+        local targets = (target == "Base") and {"Your Plot", "Plot", lp.Name.."'s Plot", "SpawnLocation"} or {target}
+
+        for _, name in pairs(targets) do
+            for _, v in pairs(workspace:GetDescendants()) do
+                if v.Name:lower():find(name:lower()) and (v:IsA("BasePart") or v:IsA("Model")) then
+                    root.CFrame = (v:IsA("Model") and v:GetModelCFrame() or v.CFrame) + Vector3.new(0, 8, 0)
+                    found = true break
+                end
+            end
+            if found then break end
+        end
+    end)
+end
+
+function CreateBtn(name, color, func)
+    local b = Instance.new("TextButton", scroll)
+    b.Size = UDim2.new(0, 175, 0, 32)
+    b.BackgroundColor3 = color
+    b.Text = name
+    b.TextColor3 = Color3.new(1, 1, 1)
+    b.Font = Enum.Font.GothamSemibold
+    b.TextSize = 11
+    Instance.new("UICorner", b)
+    b.MouseButton1Click:Connect(func)
+    return b
+end
+
+-- TÍNH NĂNG CHÍNH
+local speedOn, airOn = false, false
+local plat = Instance.new("Part")
+plat.Size = Vector3.new(25, 1, 25) plat.Anchored = true plat.Transparency = 0.85 plat.Color = Color3.new(0, 1, 1)
+
+local sBtn = CreateBtn("Tốc Độ: TẮT", Color3.fromRGB(45, 45, 45), function() speedOn = not speedOn end)
+local aBtn = CreateBtn("Bay Lơ Lửng: TẮT", Color3.fromRGB(45, 45, 45), function() airOn = not airOn end)
+
+RunService.Heartbeat:Connect(function()
+    pcall(function()
+        local char = lp.Character
+        sBtn.Text = "Tốc Độ: " .. (speedOn and "BẬT" or "TẮT")
+        sBtn.BackgroundColor3 = speedOn and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(45, 45, 45)
+        aBtn.Text = "Bay Lơ Lửng: " .. (airOn and "BẬT" or "TẮT")
+        aBtn.BackgroundColor3 = airOn and Color3.fromRGB(0, 150, 0) or Color3.fromRGB(45, 45, 45)
+
+        if speedOn then char.Humanoid.WalkSpeed = 100 end
+        if airOn then
+            plat.Parent = workspace
+            plat.CanCollide = true
+            local y = plat.Position.Y
+            if char.Humanoid.Jump then y = char.HumanoidRootPart.Position.Y - 3.5 end
+            plat.CFrame = CFrame.new(char.HumanoidRootPart.Position.X, y, char.HumanoidRootPart.Position.Z)
+        else plat.Parent = nil end
+    end)
+end)
+
+-- DANH SÁCH KHU VỰC
+CreateBtn("🏠 DỊCH CHUYỂN VỀ PLOT", Color3.fromRGB(0, 120, 255), function() Teleport("Base") end)
+CreateBtn("TP: Common Area", Color3.fromRGB(120, 120, 120), function() Teleport("Common") end)
+CreateBtn("TP: Uncommon Area", Color3.fromRGB(0, 160, 0), function() Teleport("Uncommon") end)
+CreateBtn("TP: Rare Area", Color3.fromRGB(0, 100, 200), function() Teleport("Rare") end)
+CreateBtn("TP: Epic Area", Color3.fromRGB(130, 0, 180), function() Teleport("Epic") end)
+CreateBtn("TP: Legendary Area", Color3.fromRGB(200, 100, 0), function() Teleport("Legendary") end)
+CreateBtn("TP: Mythical Area", Color3.fromRGB(180, 0, 0), function() Teleport("Mythical") end)
+CreateBtn("TP: Secret Area", Color3.fromRGB(40, 40, 40), function() Teleport("Secret") end)
+CreateBtn("TP: Celestial Area", Color3.fromRGB(0, 180, 160), function() Teleport("Celestial") end)
+
+-- KÉO MENU (HEADER LOGIC)
+local dragging, dragStart, startPos
+header.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true dragStart = input.Position startPos = main.Position
+    end
+end)
+UIS.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStart
+        main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end)
+UIS.InputEnded:Connect(function(input) dragging = false end)
+pqBtn.MouseButton1Click:Connect(function() main.Visible = not main.Visible end)
