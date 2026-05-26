@@ -1,0 +1,67 @@
+-- [[ PHU QUY BRAINROT - FIX TÌM KIẾM ĐỆ QUY ]] --
+
+local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local function CreateUI()
+    if CoreGui:FindFirstChild("PQ_Final_Final") then CoreGui.PQ_Final_Final:Destroy() end
+
+    local ScreenGui = Instance.new("ScreenGui", CoreGui)
+    ScreenGui.Name = "PQ_Final_Final"
+    ScreenGui.ResetOnSpawn = false
+
+    local Holder = Instance.new("Frame", ScreenGui)
+    Holder.Size = UDim2.new(0, 110, 0, 110); Holder.Position = UDim2.new(0.1, 0, 0.4, 0)
+    Holder.BackgroundTransparency = 1; Holder.Active = true; Holder.Draggable = true
+
+    local function CreateBtn(name, pos, color, callback)
+        local btn = Instance.new("TextButton", Holder)
+        btn.Size = UDim2.new(1, 0, 0, 30); btn.Position = pos
+        btn.BackgroundColor3 = color; btn.Text = name; btn.TextColor3 = Color3.new(1,1,1)
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+        btn.MouseButton1Click:Connect(callback)
+    end
+
+    -- Hàm tìm kiếm vật thể bất kỳ đâu trong thư mục cha
+    local function FindTarget(parent, name)
+        local found = parent:FindFirstChild(name, true) -- true = tìm sâu bên trong các folder con
+        return found
+    end
+
+    -- Nút 1: DreamWall
+    CreateBtn("DreamWall", UDim2.new(0, 0, 0, 0), Color3.fromRGB(0, 120, 255), function()
+        local wall = workspace:FindFirstChild("DreamWall")
+        if wall then LocalPlayer.Character.HumanoidRootPart.CFrame = wall:GetPivot() * CFrame.new(0, 0, -6) end
+    end)
+
+    -- Nút 2: Ác Mộng (Base_12)
+    CreateBtn("Ác Mộng", UDim2.new(0, 0, 0, 35), Color3.fromRGB(150, 0, 0), function()
+        local dreamFolder = workspace:FindFirstChild("Dream")
+        local target = dreamFolder and FindTarget(dreamFolder, "Base_12")
+        if target then LocalPlayer.Character.HumanoidRootPart.CFrame = target:GetPivot()
+        else warn("Không thấy Base_12 trong Dream") end
+    end)
+
+    -- Nút 3: Tuyệt Vọng (Base_11 - Quét toàn bộ)
+    CreateBtn("Tuyệt Vọng", UDim2.new(0, 0, 0, 70), Color3.fromRGB(80, 0, 150), function()
+        local dreamFolder = workspace:FindFirstChild("Dream")
+        local target = dreamFolder and FindTarget(dreamFolder, "Base_11")
+        if target then LocalPlayer.Character.HumanoidRootPart.CFrame = target:GetPivot()
+        else warn("Không thấy Base_11 trong Dream") end
+    end)
+
+    -- Nút ẩn hình tròn
+    local RoundBtn = Instance.new("TextButton", ScreenGui)
+    RoundBtn.Size = UDim2.new(0, 40, 0, 40); RoundBtn.Position = UDim2.new(0.02, 0, 0.2, 0)
+    RoundBtn.BackgroundColor3 = Color3.fromRGB(0,0,0); RoundBtn.Text = "P"; RoundBtn.Visible = false
+    Instance.new("UICorner", RoundBtn).CornerRadius = UDim.new(1, 0)
+
+    local HideBtn = Instance.new("TextButton", Holder)
+    HideBtn.Size = UDim2.new(0, 20, 0, 20); HideBtn.Position = UDim2.new(1, 5, -0.3, 0)
+    HideBtn.Text = "–"; HideBtn.BackgroundTransparency = 1; HideBtn.TextColor3 = Color3.new(1,1,1)
+    HideBtn.MouseButton1Click:Connect(function() Holder.Visible = false; RoundBtn.Visible = true end)
+    RoundBtn.MouseButton1Click:Connect(function() Holder.Visible = true; RoundBtn.Visible = false end)
+end
+
+CreateUI()
